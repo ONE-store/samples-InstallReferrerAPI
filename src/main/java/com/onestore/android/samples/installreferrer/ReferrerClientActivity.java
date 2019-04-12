@@ -27,15 +27,17 @@ public class ReferrerClientActivity extends AppCompatActivity {
     /**
      * Referrer Details
      */
-    private com.onestore.android.samples.installreferrer.ReferrerClientActivity.ReferrerDetail mReferrerDetails;
+    private ReferrerDetail mReferrerDetails;
     /**
      * Result codes
      */
     private static final int SUCCESS = 0;
     private static final int DB_ACCESS_FAIL = -1;
     private static final int NOT_FOUND_REFERRER = -2;
-    private static final int NOT_ALLOWED = -3;
+    private static final int NOT_ALLOWED_PACKAGE = -3;
     private static final int INVALID_PACKAGE_NAME = -4;
+    private static final int ONESTORE_MIN_APP_VER = 60700;
+    
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -46,7 +48,8 @@ public class ReferrerClientActivity extends AppCompatActivity {
             serviceIntent.setComponent(new ComponentName(servicePackageName, SERVICE_NAME));
             List<ResolveInfo> intentServices = getPackageManager().queryIntentServices(serviceIntent, 0);
             if (intentServices != null && !intentServices.isEmpty()) {
-                connectionResult = bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+                if (isOneStoreCompatible(servicePackageName)) connectionResult = bindService(serviceIntent, mServiceConnection, Context.BIND_AUTO_CREATE);
+                break;
             }
         }
         if (connectionResult) {
@@ -72,16 +75,16 @@ public class ReferrerClientActivity extends AppCompatActivity {
 
             if (bundle != null) {
                 try {
-                    mReferrerDetails = new com.onestore.android.samples.installreferrer.ReferrerClientActivity.ReferrerDetail(bundle);
-                } catch (com.onestore.android.samples.installreferrer.ReferrerClientActivity.DbAccessFailException e) {
+                    mReferrerDetails = new ReferrerDetail(bundle);
+                } catch (DbAccessFailException e) {
                     //todo handling DbAccessFailException
-                } catch (com.onestore.android.samples.installreferrer.ReferrerClientActivity.NotFoundReferrerException e) {
+                } catch (NotFoundReferrerException e) {
                     //todo handling NotFoundReferrerException
-                } catch (com.onestore.android.samples.installreferrer.ReferrerClientActivity.NotAllowedException e) {
+                } catch (NotAllowedException e) {
                     //todo handling NotAllowedException
-                } catch (com.onestore.android.samples.installreferrer.ReferrerClientActivity.InvalidPackageNameException e) {
+                } catch (InvalidPackageNameException e) {
                     //todo handling InvalidPackageNameException
-                } catch (com.onestore.android.samples.installreferrer.ReferrerClientActivity.UnknownException e) {
+                } catch (UnknownException e) {
                     //todo handling UnknownException
                 }
             }
@@ -99,7 +102,7 @@ public class ReferrerClientActivity extends AppCompatActivity {
         private final long referrerClickTimeStampSeconds;
         private final long installBeginTimeStampSeconds;
 
-        public ReferrerDetail(Bundle bundle) throws com.onestore.android.samples.installreferrer.ReferrerClientActivity.DbAccessFailException, com.onestore.android.samples.installreferrer.ReferrerClientActivity.NotFoundReferrerException, com.onestore.android.samples.installreferrer.ReferrerClientActivity.NotAllowedException, com.onestore.android.samples.installreferrer.ReferrerClientActivity.InvalidPackageNameException, com.onestore.android.samples.installreferrer.ReferrerClientActivity.UnknownException {
+        public ReferrerDetail(Bundle bundle) throws DbAccessFailException, NotFoundReferrerException, NotAllowedException, InvalidPackageNameException, UnknownException {
             int resultCode = bundle.getInt("result_code", -10);
             if (resultCode == SUCCESS) {
                 this.installReferrer = bundle.getString("install_referrer", "");
@@ -107,15 +110,15 @@ public class ReferrerClientActivity extends AppCompatActivity {
                 this.referrerClickTimeStampSeconds = bundle.getLong("referrer_click_timestamp_seconds", -1);
                 this.installBeginTimeStampSeconds = bundle.getLong("install_begin_timestamp_seconds", -1);
             } else if (resultCode == DB_ACCESS_FAIL) {
-                throw new com.onestore.android.samples.installreferrer.ReferrerClientActivity.DbAccessFailException(bundle.getString("description", "DB_ACCESS_FAIL"));
+                throw new DbAccessFailException(bundle.getString("description", "DB_ACCESS_FAIL"));
             } else if (resultCode == NOT_FOUND_REFERRER) {
-                throw new com.onestore.android.samples.installreferrer.ReferrerClientActivity.NotFoundReferrerException(bundle.getString("description", "NOT_FOUND_REFERRER"));
-            } else if (resultCode == NOT_ALLOWED) {
-                throw new com.onestore.android.samples.installreferrer.ReferrerClientActivity.NotAllowedException(bundle.getString("description", "NOT_ALLOWED"));
+                throw new NotFoundReferrerException(bundle.getString("description", "NOT_FOUND_REFERRER"));
+            } else if (resultCode == NOT_ALLOWED_PACKAGE) {
+                throw new NotAllowedException(bundle.getString("description", "NOT_ALLOWED_PACKAGE"));
             } else if (resultCode == INVALID_PACKAGE_NAME) {
-                throw new com.onestore.android.samples.installreferrer.ReferrerClientActivity.InvalidPackageNameException(bundle.getString("description", "INVALID_PACKAGE_NAME"));
+                throw new InvalidPackageNameException(bundle.getString("description", "INVALID_PACKAGE_NAME"));
             } else {
-                throw new com.onestore.android.samples.installreferrer.ReferrerClientActivity.UnknownException("resultCode is " + resultCode);
+                throw new UnknownException("resultCode is " + resultCode);
             }
         }
     }
@@ -130,8 +133,8 @@ public class ReferrerClientActivity extends AppCompatActivity {
             super(errorMsg);
         }
     }
-    private class NotAllowedException extends Exception {
-        public NotAllowedException(String errorMsg) {
+    private class NotAllowedPackageException extends Exception {
+        public NotAllowedPackageException(String errorMsg) {
             super(errorMsg);
         }
     }
