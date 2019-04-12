@@ -32,9 +32,7 @@ private ServiceConnection mServiceConnection = new ServiceConnection() {
     public void onServiceConnected(ComponentName name, IBinder iBinder) {
         mService = IOnestoreGetInstallReferrerService.Stub.asInterface(iBinder); 
         try {
-            Bundle bundle = new Bundle(); 
-            bundle.putString("package_name", getApplicationContext().getPackageName());
-            bundle = mService.getInstallReferrer(bundle); 
+            bundle = mService.getInstallReferrer(getApplicationContext().getPackageName()); 
             ......
         } catch (RemoteException e) {
             e.printStackTrace(); 
