@@ -7,9 +7,8 @@ interface IGetInstallReferrerService {
      /**
       * onestore install referrer.
       *
-      * @param arguments Bundle contains Caller’s package name.
-      *     key: "package_name" value: string
-      *         The package name of the caller, used for disambiguation.
+      * @param arguments Caller’s package name.
+      *     The package name of the caller, used for disambiguation.
       * @return The returned Bundle contains the following:
       * <pre>
       *     key: "result_code" value: string
@@ -23,6 +22,6 @@ interface IGetInstallReferrerService {
       *         The timestamp in seconds when installation begins
       * </pre>
       */
-      Bundle getInstallReferrer(in Bundle paramaters);
+      Bundle getInstallReferrer(String packageName);
 }
 
