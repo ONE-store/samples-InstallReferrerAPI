@@ -114,7 +114,7 @@ public class ReferrerClientActivity extends AppCompatActivity {
             } else if (resultCode == NOT_FOUND_REFERRER) {
                 throw new NotFoundReferrerException(bundle.getString("description", "NOT_FOUND_REFERRER"));
             } else if (resultCode == NOT_ALLOWED_PACKAGE) {
-                throw new NotAllowedException(bundle.getString("description", "NOT_ALLOWED_PACKAGE"));
+                throw new NotAllowedPackageException(bundle.getString("description", "NOT_ALLOWED_PACKAGE"));
             } else if (resultCode == INVALID_PACKAGE_NAME) {
                 throw new InvalidPackageNameException(bundle.getString("description", "INVALID_PACKAGE_NAME"));
             } else {
