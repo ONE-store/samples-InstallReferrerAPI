@@ -58,7 +58,18 @@ public class ReferrerClientActivity extends AppCompatActivity {
             Log.e(TAG, "Service not connected!");
         }
     }
-
+    
+    private boolean isOneStoreCompatible(String servicePackageName) {
+        PackageManager pm = getApplicationContext().getPackageManager();
+        try {
+            PackageInfo info = pm.getPackageInfo(servicePackageName, PackageManager.GET_META_DATA);
+            int versionCode = info.versionCode;
+            return versionCode >= ONESTORE_MIN_APP_VER;
+        } catch (PackageManager.NameNotFoundException e) {
+            return false;
+        }
+    }
+    
     /**
      * Service connection
      */
